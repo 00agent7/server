@@ -1,0 +1,871 @@
+{
+  "info": {
+    "name": "Mafia Game API",
+    "description": "A collection of API endpoints for the Mafia game application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Game Management",
+      "description": "Endpoints for managing game lifecycle",
+      "item": [
+        {
+          "name": "Create Game",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games"]
+            },
+            "description": "Creates a new Mafia game"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"gameId\": \"game123\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Game",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}"]
+            },
+            "description": "Gets a game by ID"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"gameId\": \"game123\",\n    \"phase\": \"SETUP\",\n    \"status\": \"ACTIVE\",\n    \"dayCount\": 0,\n    \"nightCount\": 0,\n    \"playerCount\": 10,\n    \"alivePlayerCount\": 10\n}"
+            }
+          ]
+        },
+        {
+          "name": "Assign Roles",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/assign-roles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "assign-roles"]
+            },
+            "description": "Assigns roles to players in the game"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/assign-roles",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "assign-roles"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"status\": \"roles assigned\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Start Game",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "start"]
+            },
+            "description": "Starts a game"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/start",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "start"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"gameId\": \"game123\",\n    \"status\": \"started\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Next Phase",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/next-phase",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "next-phase"]
+            },
+            "description": "Advances a game to the next phase"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/next-phase",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "next-phase"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"gameId\": \"game123\",\n    \"phase\": \"DAY\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Game State",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/state",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "state"]
+            },
+            "description": "Gets the current game state with comprehensive information"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/state",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "state"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"gameId\": \"game123\",\n    \"phase\": \"DAY\",\n    \"status\": \"ACTIVE\",\n    \"dayCount\": 1,\n    \"nightCount\": 0,\n    \"players\": [\n        {\n            \"seatNumber\": 1,\n            \"alive\": true,\n            \"masked\": false,\n            \"sanctions\": {\n                \"warningCount\": 0,\n                \"removed\": false,\n                \"yellowCard\": false,\n                \"redCard\": false,\n                \"lostNextSpeech\": false\n            }\n        },\n        {\n            \"seatNumber\": 2,\n            \"alive\": true,\n            \"masked\": false,\n            \"sanctions\": {\n                \"warningCount\": 0,\n                \"removed\": false,\n                \"yellowCard\": false,\n                \"redCard\": false,\n                \"lostNextSpeech\": false\n            }\n        }\n    ],\n    \"nominations\": [\n        {\n            \"nominatorSeat\": 1,\n            \"nomineeSeat\": 2,\n            \"voteCount\": 3\n        }\n    ],\n    \"currentSpeaker\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "End Game",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/end",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "end"]
+            },
+            "description": "Ends a game"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/end",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "end"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"status\": \"ended\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Player Management",
+      "description": "Endpoints for managing players in the game",
+      "item": [
+        {
+          "name": "Add Player",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/players?playerId={{playerId}}&seatNumber={{seatNumber}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "players"],
+              "query": [
+                {
+                  "key": "playerId",
+                  "value": "{{playerId}}"
+                },
+                {
+                  "key": "seatNumber",
+                  "value": "{{seatNumber}}"
+                }
+              ]
+            },
+            "description": "Adds a player to a game"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/players?playerId=player1&seatNumber=1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "players"],
+                  "query": [
+                    {
+                      "key": "playerId",
+                      "value": "player1"
+                    },
+                    {
+                      "key": "seatNumber",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"playerId\": \"player1\",\n    \"seatNumber\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Player Role",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/players/{{playerId}}/role",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "players", "{{playerId}}", "role"]
+            },
+            "description": "Gets a player's role in the game"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/players/player1/role",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "players", "player1", "role"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"playerId\": \"player1\",\n    \"seatNumber\": 1,\n    \"role\": \"CIVILIAN\",\n    \"isRed\": true,\n    \"isBlack\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Player Points",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/players/{{playerSeat}}/points",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "players", "{{playerSeat}}", "points"]
+            },
+            "description": "Gets a player's points"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/players/1/points",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "players", "1", "points"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"basePoints\": 1.5,\n    \"bonusPoints\": 0.5,\n    \"penaltyPoints\": 0.0,\n    \"compensationPoints\": 0.0,\n    \"totalPoints\": 2.0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Player Sanctions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/players/{{playerSeat}}/sanctions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "players", "{{playerSeat}}", "sanctions"]
+            },
+            "description": "Gets a player's sanctions"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/players/1/sanctions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "players", "1", "sanctions"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"warningCount\": 1,\n    \"removed\": false,\n    \"yellowCard\": true,\n    \"redCard\": false,\n    \"lostNextSpeech\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Add Warning",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/players/{{playerSeat}}/warnings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "players", "{{playerSeat}}", "warnings"]
+            },
+            "description": "Adds a warning to a player"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/players/1/warnings",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "players", "1", "warnings"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"status\": \"warned\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remove Player",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/players/{{playerSeat}}/remove",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "players", "{{playerSeat}}", "remove"]
+            },
+            "description": "Removes a player from the game due to a serious violation"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/players/1/remove",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "players", "1", "remove"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"status\": \"removed\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Issue Yellow Card",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/players/{{playerSeat}}/yellow-card",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "players", "{{playerSeat}}", "yellow-card"]
+            },
+            "description": "Issues a yellow card to a player"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/players/1/yellow-card",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "players", "1", "yellow-card"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"status\": \"yellow-carded\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Issue Red Card",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/players/{{playerSeat}}/red-card",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "players", "{{playerSeat}}", "red-card"]
+            },
+            "description": "Issues a red card to a player"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/players/1/red-card",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "players", "1", "red-card"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"status\": \"red-carded\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Day Phase Actions",
+      "description": "Endpoints for actions during the Day phase",
+      "item": [
+        {
+          "name": "Create Nomination",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/nominations?nominatorSeat={{nominatorSeat}}&nomineeSeat={{nomineeSeat}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "nominations"],
+              "query": [
+                {
+                  "key": "nominatorSeat",
+                  "value": "{{nominatorSeat}}"
+                },
+                {
+                  "key": "nomineeSeat",
+                  "value": "{{nomineeSeat}}"
+                }
+              ]
+            },
+            "description": "Creates a nomination during the Day phase"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/nominations?nominatorSeat=1&nomineeSeat=2",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "nominations"],
+                  "query": [
+                    {
+                      "key": "nominatorSeat",
+                      "value": "1"
+                    },
+                    {
+                      "key": "nomineeSeat",
+                      "value": "2"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"nominatorSeat\": 1,\n    \"nomineeSeat\": 2\n}"
+            }
+          ]
+        },
+        {
+          "name": "Withdraw Nomination",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/nominations/{{nominationIndex}}/withdraw?playerSeat={{playerSeat}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "nominations", "{{nominationIndex}}", "withdraw"],
+              "query": [
+                {
+                  "key": "playerSeat",
+                  "value": "{{playerSeat}}"
+                }
+              ]
+            },
+            "description": "Withdraws a nomination"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/nominations/0/withdraw?playerSeat=1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "nominations", "0", "withdraw"],
+                  "query": [
+                    {
+                      "key": "playerSeat",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"status\": \"withdrawn\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Vote for Nomination",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/nominations/{{nominationIndex}}/votes?voterSeat={{voterSeat}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "nominations", "{{nominationIndex}}", "votes"],
+              "query": [
+                {
+                  "key": "voterSeat",
+                  "value": "{{voterSeat}}"
+                }
+              ]
+            },
+            "description": "Votes for a nomination"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/nominations/0/votes?voterSeat=3",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "nominations", "0", "votes"],
+                  "query": [
+                    {
+                      "key": "voterSeat",
+                      "value": "3"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"status\": \"voted\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Record Prima Nota Guesses",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/prima-nota?playerSeat={{playerSeat}}&guesses={{guesses}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "prima-nota"],
+              "query": [
+                {
+                  "key": "playerSeat",
+                  "value": "{{playerSeat}}"
+                },
+                {
+                  "key": "guesses",
+                  "value": "{{guesses}}"
+                }
+              ]
+            },
+            "description": "Records Prima Nota guesses"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/prima-nota?playerSeat=1&guesses=2&guesses=5&guesses=7",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "prima-nota"],
+                  "query": [
+                    {
+                      "key": "playerSeat",
+                      "value": "1"
+                    },
+                    {
+                      "key": "guesses",
+                      "value": "2"
+                    },
+                    {
+                      "key": "guesses",
+                      "value": "5"
+                    },
+                    {
+                      "key": "guesses",
+                      "value": "7"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"status\": \"recorded\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Night Phase Actions",
+      "description": "Endpoints for actions during the Night phase",
+      "item": [
+        {
+          "name": "Check Sheriff (Don)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/check-sheriff?checkerSeat={{checkerSeat}}&targetSeat={{targetSeat}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "check-sheriff"],
+              "query": [
+                {
+                  "key": "checkerSeat",
+                  "value": "{{checkerSeat}}"
+                },
+                {
+                  "key": "targetSeat",
+                  "value": "{{targetSeat}}"
+                }
+              ]
+            },
+            "description": "Checks if a player is the Sheriff (used by the Don during Night phase)"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/check-sheriff?checkerSeat=2&targetSeat=5",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "check-sheriff"],
+                  "query": [
+                    {
+                      "key": "checkerSeat",
+                      "value": "2"
+                    },
+                    {
+                      "key": "targetSeat",
+                      "value": "5"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"isSheriff\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Check Mafia (Sheriff)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/check-mafia?checkerSeat={{checkerSeat}}&targetSeat={{targetSeat}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "check-mafia"],
+              "query": [
+                {
+                  "key": "checkerSeat",
+                  "value": "{{checkerSeat}}"
+                },
+                {
+                  "key": "targetSeat",
+                  "value": "{{targetSeat}}"
+                }
+              ]
+            },
+            "description": "Checks if a player is Mafia (used by the Sheriff during Night phase)"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/check-mafia?checkerSeat=5&targetSeat=2",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "check-mafia"],
+                  "query": [
+                    {
+                      "key": "checkerSeat",
+                      "value": "5"
+                    },
+                    {
+                      "key": "targetSeat",
+                      "value": "2"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"isMafia\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Mafia Kill",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/mafia/games/{{gameId}}/mafia-kill?mafiaSeats={{mafiaSeats}}&targetSeat={{targetSeat}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mafia", "games", "{{gameId}}", "mafia-kill"],
+              "query": [
+                {
+                  "key": "mafiaSeats",
+                  "value": "{{mafiaSeats}}"
+                },
+                {
+                  "key": "targetSeat",
+                  "value": "{{targetSeat}}"
+                }
+              ]
+            },
+            "description": "Performs a Mafia kill during the Night phase"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/mafia/games/game123/mafia-kill?mafiaSeats=2&mafiaSeats=7&mafiaSeats=9&targetSeat=5",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mafia", "games", "game123", "mafia-kill"],
+                  "query": [
+                    {
+                      "key": "mafiaSeats",
+                      "value": "2"
+                    },
+                    {
+                      "key": "mafiaSeats",
+                      "value": "7"
+                    },
+                    {
+                      "key": "mafiaSeats",
+                      "value": "9"
+                    },
+                    {
+                      "key": "targetSeat",
+                      "value": "5"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n    \"status\": \"killed\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "gameId",
+      "value": "game123",
+      "type": "string"
+    },
+    {
+      "key": "playerId",
+      "value": "player1",
+      "type": "string"
+    },
+    {
+      "key": "playerSeat",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "nominatorSeat",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "nomineeSeat",
+      "value": "2",
+      "type": "string"
+    },
+    {
+      "key": "nominationIndex",
+      "value": "0",
+      "type": "string"
+    },
+    {
+      "key": "voterSeat",
+      "value": "3",
+      "type": "string"
+    },
+    {
+      "key": "checkerSeat",
+      "value": "2",
+      "type": "string"
+    },
+    {
+      "key": "targetSeat",
+      "value": "5",
+      "type": "string"
+    },
+    {
+      "key": "mafiaSeats",
+      "value": "2,7,9",
+      "type": "string"
+    },
+    {
+      "key": "guesses",
+      "value": "2,5,7",
+      "type": "string"
+    }
+  ]
+}

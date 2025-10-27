@@ -69,6 +69,26 @@ public class GameService {
     }
 
     /**
+     * Assigns roles to players in a game.
+     * 
+     * @param gameId The ID of the game
+     * @return true if roles were assigned, false otherwise
+     */
+    public boolean assignRoles(String gameId) {
+        Game game = getGame(gameId);
+        if (game == null || game.getCurrentPhase() != GamePhase.SETUP) {
+            return false;
+        }
+
+        try {
+            game.assignRoles();
+            return true;
+        } catch (IllegalStateException e) {
+            return false;
+        }
+    }
+
+    /**
      * Starts a game.
      * 
      * @param gameId The ID of the game to start

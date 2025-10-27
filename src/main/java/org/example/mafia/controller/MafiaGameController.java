@@ -1,5 +1,8 @@
 package org.example.mafia.controller;
 
+import org.example.mafia.model.Agent;
+import org.example.mafia.model.AgentTool;
+import org.example.mafia.model.ChatMessage;
 import org.example.mafia.model.Game;
 import org.example.mafia.model.Nomination;
 import org.example.mafia.model.Player;
@@ -8,6 +11,8 @@ import org.example.mafia.model.PlayerSanctions;
 import org.example.mafia.model.enums.GamePhase;
 import org.example.mafia.model.enums.GameStatus;
 import org.example.mafia.model.enums.PlayerRole;
+import org.example.mafia.service.AgentService;
+import org.example.mafia.service.ChatService;
 import org.example.mafia.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +32,14 @@ import java.util.stream.Collectors;
 public class MafiaGameController {
 
     private final GameService gameService;
+    private final AgentService agentService;
+    private final ChatService chatService;
 
     @Autowired
-    public MafiaGameController(GameService gameService) {
+    public MafiaGameController(GameService gameService, AgentService agentService, ChatService chatService) {
         this.gameService = gameService;
+        this.agentService = agentService;
+        this.chatService = chatService;
     }
 
     /**
@@ -93,6 +102,25 @@ public class MafiaGameController {
         Map<String, Object> response = new HashMap<>();
         response.put("playerId", player.getId());
         response.put("seatNumber", player.getSeatNumber());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Assigns roles to players after all players are added.
+     * 
+     * @param gameId The ID of the game
+     * @return Success status
+     */
+    @PostMapping("/games/{gameId}/assign-roles")
+    public ResponseEntity<Map<String, Object>> assignRoles(@PathVariable String gameId) {
+        boolean assigned = gameService.assignRoles(gameId);
+        if (!assigned) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("gameId", gameId);
+        response.put("status", "roles_assigned");
         return ResponseEntity.ok(response);
     }
 
@@ -580,6 +608,263 @@ public class MafiaGameController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("status", "ended");
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Creates a new AI agent and adds it to the game.
+     * 
+     * @param gameId The ID of the game to add the agent to
+     * @param seatNumber The seat number for the agent
+     * @param agentType The type of agent (e.g., "GEMINI_PRO", "CUSTOM")
+     * @param modelName The name of the model to use (optional)
+     * @param promptTemplate The prompt template to use (optional)
+     * @return The created agent details
+     */
+    @PostMapping("/games/{gameId}/agents")
+    public ResponseEntity<Map<String, Object>> createAgent(
+            @PathVariable String gameId,
+            @RequestParam int seatNumber,
+            @RequestParam String agentType,
+            @RequestParam(required = false) String modelName,
+            @RequestParam(required = false) String promptTemplate) {
+
+        Agent agent = agentService.createAgent(gameId, seatNumber, agentType, modelName, promptTemplate);
+        if (agent == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("agentId", agent.getId());
+        response.put("seatNumber", agent.getSeatNumber());
+        response.put("agentType", agent.getAgentType());
+        if (agent.getModelName() != null) {
+            response.put("modelName", agent.getModelName());
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Gets all registered tools for an agent.
+     * 
+     * @param gameId The ID of the game
+     * @param agentId The ID of the agent
+     * @return The list of registered tools
+     */
+    @GetMapping("/games/{gameId}/agents/{agentId}/tools")
+    public ResponseEntity<List<Map<String, Object>>> getAgentTools(
+            @PathVariable String gameId,
+            @PathVariable String agentId) {
+
+        List<AgentTool> tools = agentService.getRegisteredTools(agentId);
+        if (tools.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<Map<String, Object>> response = tools.stream()
+                .map(tool -> {
+                    Map<String, Object> toolInfo = new HashMap<>();
+                    toolInfo.put("name", tool.getName());
+                    toolInfo.put("description", tool.getDescription());
+                    toolInfo.put("inputSchema", tool.getInputSchema());
+                    toolInfo.put("outputSchema", tool.getOutputSchema());
+                    toolInfo.put("enabled", tool.isEnabled());
+                    return toolInfo;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Executes a tool for an agent.
+     * 
+     * @param gameId The ID of the game
+     * @param agentId The ID of the agent
+     * @param toolName The name of the tool to execute
+     * @param parameters The parameters for the tool
+     * @return The result of the tool execution
+     */
+    @PostMapping("/games/{gameId}/agents/{agentId}/execute")
+    public ResponseEntity<Map<String, Object>> executeAgentTool(
+            @PathVariable String gameId,
+            @PathVariable String agentId,
+            @RequestParam String toolName,
+            @RequestBody Map<String, Object> parameters) {
+
+        Map<String, Object> result = agentService.executeTool(agentId, toolName, parameters);
+        if (result.containsKey("error")) {
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Gets the system prompt for an agent.
+     * 
+     * @param gameId The ID of the game
+     * @param agentId The ID of the agent
+     * @return The system prompt
+     */
+    @GetMapping("/games/{gameId}/agents/{agentId}/prompt")
+    public ResponseEntity<Map<String, Object>> getAgentPrompt(
+            @PathVariable String gameId,
+            @PathVariable String agentId) {
+
+        String prompt = agentService.getAgentPrompt(agentId);
+        if (prompt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("prompt", prompt);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Sends a public message to all players in a game.
+     *
+     * @param gameId The ID of the game
+     * @param senderSeat The seat number of the sender
+     * @param content The message content
+     * @return The created message details
+     */
+    @PostMapping("/games/{gameId}/chat/public")
+    public ResponseEntity<Map<String, Object>> sendPublicMessage(
+            @PathVariable String gameId,
+            @RequestParam int senderSeat,
+            @RequestParam String content) {
+
+        ChatMessage message = chatService.sendPublicMessage(gameId, senderSeat, content);
+        if (message == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("messageId", message.getId());
+        response.put("senderSeat", message.getSender().getSeatNumber());
+        response.put("content", message.getContent());
+        response.put("timestamp", message.getTimestamp());
+        response.put("isPublic", message.isPublic());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Sends a private message to a specific player in a game.
+     *
+     * @param gameId The ID of the game
+     * @param senderSeat The seat number of the sender
+     * @param recipientSeat The seat number of the recipient
+     * @param content The message content
+     * @return The created message details
+     */
+    @PostMapping("/games/{gameId}/chat/private")
+    public ResponseEntity<Map<String, Object>> sendPrivateMessage(
+            @PathVariable String gameId,
+            @RequestParam int senderSeat,
+            @RequestParam int recipientSeat,
+            @RequestParam String content) {
+
+        ChatMessage message = chatService.sendPrivateMessage(gameId, senderSeat, recipientSeat, content);
+        if (message == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("messageId", message.getId());
+        response.put("senderSeat", message.getSender().getSeatNumber());
+        response.put("recipientSeat", message.getRecipient().getSeatNumber());
+        response.put("content", message.getContent());
+        response.put("timestamp", message.getTimestamp());
+        response.put("isPublic", message.isPublic());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Gets all public messages for a game.
+     *
+     * @param gameId The ID of the game
+     * @return A list of public messages
+     */
+    @GetMapping("/games/{gameId}/chat/public")
+    public ResponseEntity<List<Map<String, Object>>> getPublicMessages(@PathVariable String gameId) {
+        List<ChatMessage> messages = chatService.getPublicMessages(gameId);
+
+        List<Map<String, Object>> response = messages.stream()
+                .map(m -> {
+                    Map<String, Object> messageInfo = new HashMap<>();
+                    messageInfo.put("messageId", m.getId());
+                    messageInfo.put("senderSeat", m.getSender().getSeatNumber());
+                    messageInfo.put("content", m.getContent());
+                    messageInfo.put("timestamp", m.getTimestamp());
+                    return messageInfo;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Gets all messages (public and private) visible to a specific player.
+     *
+     * @param gameId The ID of the game
+     * @param playerSeat The seat number of the player
+     * @return A list of messages visible to the player
+     */
+    @GetMapping("/games/{gameId}/players/{playerSeat}/messages")
+    public ResponseEntity<List<Map<String, Object>>> getMessagesForPlayer(
+            @PathVariable String gameId,
+            @PathVariable int playerSeat) {
+
+        List<ChatMessage> messages = chatService.getMessagesForPlayer(gameId, playerSeat);
+
+        List<Map<String, Object>> response = messages.stream()
+                .map(m -> {
+                    Map<String, Object> messageInfo = new HashMap<>();
+                    messageInfo.put("messageId", m.getId());
+                    messageInfo.put("senderSeat", m.getSender().getSeatNumber());
+                    if (!m.isPublic() && m.getRecipient() != null) {
+                        messageInfo.put("recipientSeat", m.getRecipient().getSeatNumber());
+                    }
+                    messageInfo.put("content", m.getContent());
+                    messageInfo.put("timestamp", m.getTimestamp());
+                    messageInfo.put("isPublic", m.isPublic());
+                    return messageInfo;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Gets private messages between two players.
+     *
+     * @param gameId The ID of the game
+     * @param playerSeat1 The seat number of the first player
+     * @param playerSeat2 The seat number of the second player
+     * @return A list of private messages between the two players
+     */
+    @GetMapping("/games/{gameId}/chat/private")
+    public ResponseEntity<List<Map<String, Object>>> getPrivateMessagesBetweenPlayers(
+            @PathVariable String gameId,
+            @RequestParam int playerSeat1,
+            @RequestParam int playerSeat2) {
+
+        List<ChatMessage> messages = chatService.getPrivateMessagesBetweenPlayers(gameId, playerSeat1, playerSeat2);
+
+        List<Map<String, Object>> response = messages.stream()
+                .map(m -> {
+                    Map<String, Object> messageInfo = new HashMap<>();
+                    messageInfo.put("messageId", m.getId());
+                    messageInfo.put("senderSeat", m.getSender().getSeatNumber());
+                    messageInfo.put("recipientSeat", m.getRecipient().getSeatNumber());
+                    messageInfo.put("content", m.getContent());
+                    messageInfo.put("timestamp", m.getTimestamp());
+                    return messageInfo;
+                })
+                .collect(Collectors.toList());
+
         return ResponseEntity.ok(response);
     }
 }

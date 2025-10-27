@@ -1,5 +1,6 @@
 package org.example.mafia.model;
 
+import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -7,12 +8,35 @@ import java.util.Set;
  * Represents a nomination made during the Day phase.
  * Each nomination tracks who made it, who was nominated, and the votes for/against it.
  */
+@Entity
+@Table(name = "nominations")
 public class Nomination {
-    private final Player nominator;
-    private final Player nominee;
-    private final Set<Player> voters;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "nominator_id", nullable = false)
+    private Player nominator;
+
+    @ManyToOne
+    @JoinColumn(name = "nominee_id", nullable = false)
+    private Player nominee;
+
+    @ManyToMany
+    @JoinTable(
+        name = "nomination_votes",
+        joinColumns = @JoinColumn(name = "nomination_id"),
+        inverseJoinColumns = @JoinColumn(name = "voter_id")
+    )
+    private Set<Player> voters;
+
     private boolean withdrawn;
-    
+
+    @ManyToOne
+    @JoinColumn(name = "game_id")
+    private Game game;
+
     /**
      * Creates a new nomination.
      * 
@@ -25,7 +49,15 @@ public class Nomination {
         this.voters = new HashSet<>();
         this.withdrawn = false;
     }
-    
+
+    /**
+     * No-arg constructor for JPA.
+     */
+    protected Nomination() {
+        this.voters = new HashSet<>();
+        this.withdrawn = false;
+    }
+
     /**
      * Gets the player who made the nomination.
      * 
@@ -34,7 +66,7 @@ public class Nomination {
     public Player getNominator() {
         return nominator;
     }
-    
+
     /**
      * Gets the player who was nominated.
      * 
@@ -43,7 +75,7 @@ public class Nomination {
     public Player getNominee() {
         return nominee;
     }
-    
+
     /**
      * Gets the set of players who voted for this nomination.
      * 
@@ -52,7 +84,7 @@ public class Nomination {
     public Set<Player> getVoters() {
         return voters;
     }
-    
+
     /**
      * Adds a vote for this nomination.
      * 
@@ -62,7 +94,7 @@ public class Nomination {
     public boolean addVote(Player voter) {
         return voters.add(voter);
     }
-    
+
     /**
      * Removes a vote for this nomination.
      * 
@@ -72,7 +104,7 @@ public class Nomination {
     public boolean removeVote(Player voter) {
         return voters.remove(voter);
     }
-    
+
     /**
      * Gets the number of votes for this nomination.
      * 
@@ -81,7 +113,7 @@ public class Nomination {
     public int getVoteCount() {
         return voters.size();
     }
-    
+
     /**
      * Checks if this nomination has been withdrawn.
      * 
@@ -90,7 +122,7 @@ public class Nomination {
     public boolean isWithdrawn() {
         return withdrawn;
     }
-    
+
     /**
      * Withdraws this nomination.
      * According to the rules, a player can withdraw their own nomination during their minute.
@@ -98,7 +130,7 @@ public class Nomination {
     public void withdraw() {
         this.withdrawn = true;
     }
-    
+
     @Override
     public String toString() {
         return "Nomination{" +

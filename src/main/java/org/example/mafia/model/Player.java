@@ -1,19 +1,31 @@
 package org.example.mafia.model;
 
+import jakarta.persistence.*;
 import org.example.mafia.model.enums.GameStatus;
 import org.example.mafia.model.enums.PlayerRole;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.UUID;
 
 /**
  * Represents a player in the Mafia game.
  * Each player has a unique ID, a seat number, and a role.
  */
+@Entity
+@Table(name = "players")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "player_type")
+@DiscriminatorValue("PLAYER")
 public class Player {
-    private final String id;
-    private final int seatNumber;
+    @Id
+    private String id;
+
+    @Column(nullable = false)
+    private int seatNumber;
+
+    @Enumerated(EnumType.STRING)
     private PlayerRole role;
+
     private boolean alive;
     private boolean masked;
 
@@ -25,13 +37,23 @@ public class Player {
 
     // For Prima Nota (First Killed Player)
     private boolean isPrimaNotaPlayer;
-    private int[] primaNotaGuesses;
+
+    @ElementCollection
+    @CollectionTable(name = "player_prima_nota_guesses", joinColumns = @JoinColumn(name = "player_id"))
+    @Column(name = "seat_number")
+    private List<Integer> primaNotaGuesses;
 
     // For tracking points
+    @Embedded
     private PlayerPoints points;
 
     // For tracking warnings and sanctions
+    @Embedded
     private PlayerSanctions sanctions;
+
+    @ManyToOne
+    @JoinColumn(name = "game_id")
+    private Game game;
 
     /**
      * Creates a new player with the given ID and seat number.
@@ -60,6 +82,23 @@ public class Player {
      */
     public Player(int seatNumber) {
         this(UUID.randomUUID().toString(), seatNumber);
+    }
+
+    /**
+     * No-arg constructor for JPA.
+     */
+    protected Player() {
+        this.id = UUID.randomUUID().toString();
+        this.alive = true;
+        this.masked = false;
+        this.hasSpoken = false;
+        this.hasVoted = false;
+        this.hasChecked = false;
+        this.hasNominated = false;
+        this.isPrimaNotaPlayer = false;
+        this.points = new PlayerPoints();
+        this.sanctions = new PlayerSanctions();
+        this.primaNotaGuesses = new ArrayList<>();
     }
 
     // Getters and setters
@@ -136,11 +175,23 @@ public class Player {
         this.isPrimaNotaPlayer = primaNotaPlayer;
     }
 
-    public int[] getPrimaNotaGuesses() {
+    public List<Integer> getPrimaNotaGuesses() {
         return primaNotaGuesses;
     }
 
-    public void setPrimaNotaGuesses(int[] primaNotaGuesses) {
+    public void setPrimaNotaGuesses(int[] guesses) {
+        if (guesses == null) {
+            this.primaNotaGuesses = null;
+            return;
+        }
+
+        this.primaNotaGuesses = new ArrayList<>();
+        for (int guess : guesses) {
+            this.primaNotaGuesses.add(guess);
+        }
+    }
+
+    public void setPrimaNotaGuessesList(List<Integer> primaNotaGuesses) {
         this.primaNotaGuesses = primaNotaGuesses;
     }
 

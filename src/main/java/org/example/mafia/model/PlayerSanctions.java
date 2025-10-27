@@ -1,16 +1,19 @@
 package org.example.mafia.model;
 
+import jakarta.persistence.Embeddable;
+
 /**
  * Represents the warnings and sanctions applied to a player in a Mafia game.
  * According to the rules, players can receive warnings for various infractions,
  * and accumulating warnings leads to penalties.
  */
+@Embeddable
 public class PlayerSanctions {
     private int warningCount;
     private boolean removed;
     private boolean yellowCard;
     private boolean redCard;
-    
+
     /**
      * Creates a new PlayerSanctions instance with no warnings or sanctions.
      */
@@ -20,7 +23,7 @@ public class PlayerSanctions {
         this.yellowCard = false;
         this.redCard = false;
     }
-    
+
     /**
      * Adds a warning to the player.
      * According to the rules, 3 warnings result in losing the next speech,
@@ -30,15 +33,15 @@ public class PlayerSanctions {
      */
     public boolean addWarning() {
         warningCount++;
-        
+
         if (warningCount >= 4) {
             removed = true;
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * Marks the player as removed from the game.
      * This is for serious violations like shouting after Night is called,
@@ -47,7 +50,7 @@ public class PlayerSanctions {
     public void removePlayer() {
         removed = true;
     }
-    
+
     /**
      * Issues a yellow card to the player.
      * This is for gross misconduct like deliberate peeking/cheating,
@@ -56,7 +59,7 @@ public class PlayerSanctions {
     public void issueYellowCard() {
         yellowCard = true;
     }
-    
+
     /**
      * Issues a red card to the player.
      * This is for critical misconduct and results in disqualification.
@@ -64,7 +67,7 @@ public class PlayerSanctions {
     public void issueRedCard() {
         redCard = true;
     }
-    
+
     /**
      * Checks if the player has lost their next speech.
      * According to the rules, this happens when a player has 3 warnings.
@@ -74,7 +77,7 @@ public class PlayerSanctions {
     public boolean hasLostNextSpeech() {
         return warningCount >= 3;
     }
-    
+
     /**
      * Gets the number of warnings the player has received.
      * 
@@ -83,7 +86,7 @@ public class PlayerSanctions {
     public int getWarningCount() {
         return warningCount;
     }
-    
+
     /**
      * Checks if the player has been removed from the game.
      * 
@@ -92,7 +95,7 @@ public class PlayerSanctions {
     public boolean isRemoved() {
         return removed;
     }
-    
+
     /**
      * Checks if the player has received a yellow card.
      * 
@@ -101,7 +104,7 @@ public class PlayerSanctions {
     public boolean hasYellowCard() {
         return yellowCard;
     }
-    
+
     /**
      * Checks if the player has received a red card.
      * 

@@ -1,10 +1,13 @@
 package org.example.mafia.model;
 
+import jakarta.persistence.Embeddable;
+
 /**
  * Represents the points earned by a player in a Mafia game.
  * According to the rules, players earn points based on their role, game outcome,
  * and special actions or performances.
  */
+@Embeddable
 public class PlayerPoints {
     // Base points
     private static final int WIN_POINTS = 4;

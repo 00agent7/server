@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mafia-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mafia-app
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mafia
+      SPRING_DATASOURCE_USERNAME: mafia_user
+      SPRING_DATASOURCE_PASSWORD: mafia_password
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    container_name: mafia-postgres
+    environment:
+      POSTGRES_DB: mafia
+      POSTGRES_USER: mafia_user
+      POSTGRES_PASSWORD: mafia_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

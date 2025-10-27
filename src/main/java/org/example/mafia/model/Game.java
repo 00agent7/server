@@ -1,5 +1,6 @@
 package org.example.mafia.model;
 
+import jakarta.persistence.*;
 import org.example.mafia.model.enums.GamePhase;
 import org.example.mafia.model.enums.GameStatus;
 import org.example.mafia.model.enums.PlayerRole;
@@ -12,22 +13,46 @@ import java.util.stream.Collectors;
  * Represents a Mafia game session.
  * This class manages the game state, including players, nominations, and game flow.
  */
+@Entity
+@Table(name = "games")
 public class Game {
-    private final String id;
-    private final LocalDateTime startTime;
+    @Id
+    private String id;
+
+    @Column(nullable = false)
+    private LocalDateTime startTime;
+
     private LocalDateTime endTime;
 
-    private final List<Player> players;
-    private final Map<Integer, Player> playersBySeat;
-    private final List<Nomination> nominations;
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Player> players;
 
+    @Transient
+    private Map<Integer, Player> playersBySeat;
+
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Nomination> nominations;
+
+    @Enumerated(EnumType.STRING)
     private GamePhase currentPhase;
+
+    @Enumerated(EnumType.STRING)
     private GameStatus status;
+
     private int dayCount;
     private int nightCount;
     private int consecutiveNoEliminationCount;
+
+    @ManyToOne
+    @JoinColumn(name = "current_speaker_id")
     private Player currentSpeaker;
+
+    @ManyToOne
+    @JoinColumn(name = "eliminated_player_id")
     private Player eliminatedPlayer;
+
+    @ManyToOne
+    @JoinColumn(name = "prima_nota_player_id")
     private Player primaNotaPlayer;
 
     /**
@@ -100,15 +125,33 @@ public class Game {
     }
 
     /**
+     * Checks if roles have been assigned to players.
+     * 
+     * @return true if roles have been assigned, false otherwise
+     */
+    public boolean areRolesAssigned() {
+        if (players.isEmpty()) {
+            return false;
+        }
+
+        // Check if any player has a non-null role
+        return players.stream().anyMatch(player -> player.getRole() != null);
+    }
+
+    /**
      * Starts the game.
-     * This method assigns roles and sets the game phase to NIGHT_0.
+     * This method assigns roles (if not already assigned) and sets the game phase to NIGHT_0.
      */
     public void startGame() {
         if (players.size() != 10) {
             throw new IllegalStateException("Game must have exactly 10 players to start");
         }
 
-        assignRoles();
+        // Only assign roles if they haven't been assigned yet
+        if (!areRolesAssigned()) {
+            assignRoles();
+        }
+
         currentPhase = GamePhase.NIGHT_0;
         currentSpeaker = playersBySeat.get(1); // Start with player in seat 1
     }
